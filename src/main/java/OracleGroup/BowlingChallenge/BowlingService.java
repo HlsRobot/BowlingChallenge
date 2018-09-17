@@ -1,6 +1,8 @@
 package OracleGroup.BowlingChallenge;
 
 import OracleGroup.BowlingChallenge.frame.Frame;
+import OracleGroup.BowlingChallenge.frame.Spare;
+import OracleGroup.BowlingChallenge.frame.Strike;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class BowlingService {
         	} else {
                 if (rounds.get(i - 1).getFrame().getFirstPlay() == 10 || rounds.get(i - 1).getFrame().getFirstPlay() + rounds.get(i - 1).getFrame().getSecondPlay() == 10) {
         			System.out.println("Extra round!");
-                    rounds.get(i).setFrame(this.getExtraPlays(this.bufferedReader, rounds.get(i - 1).getFrame().getType()));
+                    rounds.get(i).setFrame(this.getExtraPlays(this.bufferedReader, rounds.get(i - 1).getFrame()));
         		}
         	}
         	this.calculateScore(rounds, i);
@@ -70,45 +72,42 @@ public class BowlingService {
 	 * @throws UserQuitException 
 	 */
     private Frame getPlaysOfRound(final BufferedReader br) throws IOException, UserQuitException {
-        final Frame frame = new Frame();
         System.out.println("Please throw your first ball!");
-        frame.setFirstPlay(this.handleInput(br, 10));
-        if (frame.getFirstPlay() < 10) {
+        final int firstPlay = (this.handleInput(br, 10));
+        if (firstPlay < 10) {
             System.out.println("Please throw your second ball!");
-            frame.setSecondPlay(this.handleInput(br, 10 - frame.getFirstPlay()));
+            final int secondPlay = this.handleInput(br, 10 - firstPlay);
+            if (firstPlay + secondPlay == 10) {
+                return new Spare(firstPlay, secondPlay);
+            }
+            return new Frame(firstPlay, secondPlay);
 		} else {
 			System.out.println("Strike!!!");
-            frame.setSecondPlay(0);
+            return new Strike(firstPlay);
         }
-        return frame;
 	}
 	
 	/**
 	 * Method for the extra round in case the player scored a spare or a strike at the last round
 	 * @param br BufferedReader
-	 * @param type ScoreType
      * @return Frame
 	 * @throws IOException
 	 * @throws UserQuitException 
 	 */
-    private Frame getExtraPlays(final BufferedReader br, final ScoreType type) throws IOException, UserQuitException {
-		if (type == ScoreType.STRIKE) {
-            final Frame frame = new Frame();
+    private Frame getExtraPlays(final BufferedReader br, final Frame frame) throws IOException, UserQuitException {
+        final Frame extraFrame = new Frame(0, 0);
+        if (frame.isStrike()) {
             System.out.println("Please throw your first extra ball!");
-            frame.setFirstPlay(this.handleInput(br, 10));
+            extraFrame.setFirstPlay(this.handleInput(br, 10));
 				System.out.println("Please throw your second extra ball!");
-            frame.setSecondPlay(this.handleInput(br, 10));
-            return frame;
-		} else if (type == ScoreType.SPARE) {
-            final Frame frame = new Frame(-1, 0);
-            while (frame.getFirstPlay() == -1) {
-				System.out.println("Please throw your extra ball!");
-                frame.setFirstPlay(this.handleInput(br, 10));
-			}
-            return frame;
-		} else {
-            return new Frame(0, 0);
-		}
+            extraFrame.setSecondPlay(this.handleInput(br, 10));
+            return extraFrame;
+        } else if (frame.isSpare()) {
+            System.out.println("Please throw your extra ball!");
+            extraFrame.setFirstPlay(this.handleInput(br, 10));
+            return extraFrame;
+        }
+        return extraFrame;
 	}
 	
 	/**
@@ -155,11 +154,11 @@ public class BowlingService {
 	 */
     private void calculateScore(List<RoundClass> rounds, int index) {
 		if (index > 0) {
-            if (rounds.get(index - 1).getFrame().getType() == ScoreType.SPARE) {
+            if (rounds.get(index - 1).getFrame().isSpare()) {
                 rounds.get(index - 1).setScore(rounds.get(index - 1).getScore() + rounds.get(index).getFrame().getFirstPlay());
-            } else if (rounds.get(index - 1).getFrame().getType() == ScoreType.STRIKE) {
+            } else if (rounds.get(index - 1).getFrame().isStrike()) {
 				if (index-2 > -1) {
-                    if (rounds.get(index - 2).getFrame().getType() == ScoreType.STRIKE) {
+                    if (rounds.get(index - 2).getFrame().isStrike()) {
                         rounds.get(index - 2).setScore(rounds.get(index - 2).getScore() + rounds.get(index).getFrame().getFirstPlay());
                         rounds.get(index - 1).setScore(rounds.get(index - 1).getFrame().getFirstPlay() + rounds.get(index - 1).getFrame().getSecondPlay());
 					}
@@ -182,17 +181,17 @@ public class BowlingService {
     private void printScores(List<RoundClass> rounds) {
 		for (int i=0; i<rounds.size(); i++) {
 			if (i< rounds.size()-1) {
-                if (rounds.get(i).getFrame().getType() == ScoreType.SPARE) {
+                if (rounds.get(i).getFrame().isSpare()) {
                     System.out.print("| " + rounds.get(i).getFrame().getFirstPlay() + " |.:|");
-                } else if (rounds.get(i).getFrame().getType() == ScoreType.STRIKE) {
+                } else if (rounds.get(i).getFrame().isStrike()) {
 					System.out.print("|   ||||");
 				} else {
                     System.out.print("| " + rounds.get(i).getFrame().getFirstPlay() + " | " + rounds.get(i).getFrame().getSecondPlay() + " ");
 				}
 			} else {
-                if (rounds.get(i - 1).getFrame().getType() == ScoreType.SPARE) {
+                if (rounds.get(i - 1).getFrame().isSpare()) {
                     System.out.print("| " + rounds.get(i).getFrame().getFirstPlay() + " |");
-                } else if (rounds.get(i - 1).getFrame().getType() == ScoreType.STRIKE) {
+                } else if (rounds.get(i - 1).getFrame().isStrike()) {
                     System.out.print("| " + rounds.get(i).getFrame().getFirstPlay() + " | " + rounds.get(i).getFrame().getSecondPlay() + " |");
 				} else {
 					System.out.print("|");
@@ -204,9 +203,9 @@ public class BowlingService {
 		for (int i=0; i<rounds.size(); i++) {
 			if (i< rounds.size()-1) {
                 String result = "|    ";
-                if (rounds.get(i).getFrame().getType() != null) {
-                    result = "|   " + calculateResult(rounds, i);
-                }
+                result = "|   " + calculateResult(rounds, i);
+//                if (rounds.get(i).getFrame().getType() != null) {
+//                }
 				System.out.print(result);
 				for(int j=result.length()-1; j<7; j++) {
 					System.out.print(" ");
