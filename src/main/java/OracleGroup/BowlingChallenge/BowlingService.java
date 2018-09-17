@@ -154,18 +154,38 @@ public class BowlingService {
     private void calculateScore(List<Frame> frameList, int index) {
 		if (index > 0) {
             if (frameList.get(index - 1).isSpare()) {
-                frameList.get(index - 1).setScore(frameList.get(index - 1).getScore() + frameList.get(index).getFirstPlay());
+                this.spareOrSecondStrikeBonus(frameList.get(index - 1), frameList.get(index));
             } else if (frameList.get(index - 1).isStrike()) {
 				if (index-2 > -1) {
                     if (frameList.get(index - 2).isStrike()) {
-                        frameList.get(index - 2).setScore(frameList.get(index - 2).getScore() + frameList.get(index).getFirstPlay());
-                        frameList.get(index - 1).setScore(frameList.get(index - 1).getFirstPlay() + frameList.get(index - 1).getSecondPlay());
+                        this.spareOrSecondStrikeBonus(frameList.get(index - 2), frameList.get(index));
+                        frameList.get(index - 1).setNormalScore();
 					}
 				}
-                frameList.get(index - 1).setScore(frameList.get(index - 1).getScore() + frameList.get(index).getFirstPlay() + frameList.get(index).getSecondPlay());
+                this.strikeBonus(frameList.get(index - 1), frameList.get(index));
 			}
         }
-        frameList.get(index).setScore(frameList.get(index).getFirstPlay() + frameList.get(index).getSecondPlay());
+        frameList.get(index).setNormalScore();
+    }
+
+    /**
+     * Method used to calculate the bonus of a spare or the bonus of a strike that was followed by a second strike
+     *
+     * @param spareFrame   Frame
+     * @param currentFrame Frame
+     */
+    private void spareOrSecondStrikeBonus(final Frame spareFrame, final Frame currentFrame) {
+        spareFrame.setScore(spareFrame.getScore() + currentFrame.getFirstPlay());
+    }
+
+    /**
+     * Method used to calculate the bonus of a strike
+     *
+     * @param strikeFrame  Frame
+     * @param currentFrame Frame
+     */
+    private void strikeBonus(final Frame strikeFrame, final Frame currentFrame) {
+        strikeFrame.setScore(strikeFrame.getScore() + currentFrame.getFirstPlay() + currentFrame.getSecondPlay());
     }
 
     /**

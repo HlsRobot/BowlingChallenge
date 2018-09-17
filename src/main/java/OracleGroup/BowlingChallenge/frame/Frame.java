@@ -42,6 +42,10 @@ public class Frame {
         this.score = score;
     }
 
+    public void setNormalScore() {
+        this.score = this.firstPlay + this.secondPlay;
+    }
+
     public boolean isStrike() {
         return false;
     }
