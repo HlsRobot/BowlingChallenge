@@ -2,15 +2,12 @@ package OracleGroup.BowlingChallenge;
 
 public class UserQuitException extends Exception {
 	private static final long serialVersionUID = 9059166691741080934L;
-	
-	private String message;
-	
-	public UserQuitException(final String message) {
-		this.message = message;
+
+	UserQuitException() {
 	}
 
 	@Override
 	public String getMessage() {
-		return message;
+		return "User decided to quit before finishing the game. Looser!";
 	}
 }

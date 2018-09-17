@@ -4,8 +4,10 @@ public class Frame {
 	
 	private int firstPlay;
 	private int secondPlay;
+    private int score = 0;
 
     public Frame() {
+        this(0);
     }
 
     protected Frame(final int firstPlay) {
@@ -31,6 +33,14 @@ public class Frame {
 	public void setSecondPlay(int secondPlay) {
 		this.secondPlay = secondPlay;
 	}
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
 
     public boolean isStrike() {
         return false;
