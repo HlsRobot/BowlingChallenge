@@ -78,6 +78,7 @@ public class BowlingService {
             System.out.println("Please throw your second ball!");
             final int secondPlay = this.handleInput(br, 10 - firstPlay);
             if (firstPlay + secondPlay == 10) {
+                System.out.println("Spare!");
                 return new Spare(firstPlay, secondPlay);
             }
             return new Frame(firstPlay, secondPlay);
@@ -99,7 +100,7 @@ public class BowlingService {
         if (frame.isStrike()) {
             System.out.println("Please throw your first extra ball!");
             extraFrame.setFirstPlay(this.handleInput(br, 10));
-				System.out.println("Please throw your second extra ball!");
+            System.out.println("Please throw your second extra ball!");
             extraFrame.setSecondPlay(this.handleInput(br, 10));
             return extraFrame;
         } else if (frame.isSpare()) {
