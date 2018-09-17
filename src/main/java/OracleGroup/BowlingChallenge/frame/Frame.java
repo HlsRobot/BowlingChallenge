@@ -1,14 +1,21 @@
-package OracleGroup.BowlingChallenge;
+package OracleGroup.BowlingChallenge.frame;
 
-public class Plays {
+import OracleGroup.BowlingChallenge.ScoreType;
+
+public class Frame {
 	
 	private int firstPlay;
 	private int secondPlay;
 	private ScoreType type;
-	
-	public Plays() {}
-	
-	public Plays(final int firstPlay, final int secondPlay) {
+
+    public Frame() {
+    }
+
+    protected Frame(final int firstPlay) {
+        this(firstPlay, 0);
+    }
+
+    public Frame(final int firstPlay, final int secondPlay) {
 		this.firstPlay = firstPlay;
 		this.secondPlay = secondPlay;
 	}
@@ -40,4 +47,13 @@ public class Plays {
 	public ScoreType getType() {
 		return type;
 	}
+
+    public boolean isStrike() {
+        return false;
+    }
+
+    public boolean isSpare() {
+        return false;
+    }
+
 }

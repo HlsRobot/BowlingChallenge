@@ -1,21 +1,23 @@
 package OracleGroup.BowlingChallenge;
 
+import OracleGroup.BowlingChallenge.frame.Frame;
+
 public class RoundClass {
 
-	private Plays plays;
+	private Frame frame;
 	private int score;
 	
 	public RoundClass() {
-		this.plays = new Plays(0, 0);
+		this.frame = new Frame(0, 0);
 		this.score = 0;
 	}
 
-	public Plays getPlays() {
-		return plays;
+	public Frame getFrame() {
+		return frame;
 	}
 
-	public void setPlays(Plays plays) {
-		this.plays = plays;
+	public void setFrame(Frame frame) {
+		this.frame = frame;
 	}
 
 	public int getScore() {
