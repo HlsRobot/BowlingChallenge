@@ -1,17 +1,18 @@
 package OracleGroup.BowlingChallenge;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BowlingServiceTest {
 	
@@ -25,7 +26,7 @@ public class BowlingServiceTest {
 	private final PrintStream originalErr = System.err;
 	
 	@Before
-	public void setUp() throws Exception {
+    public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		System.setOut(new PrintStream(this.outContent));
 	    System.setErr(new PrintStream(this.errContent));
@@ -44,7 +45,7 @@ public class BowlingServiceTest {
 		Mockito.when(this.bufferedReader.readLine()).thenReturn("abc", "exit");
 		try {
 			this.bowlingService.startBowling();
-		} catch (Exception e) {
+        } catch (UserQuitException e) {
 			assertTrue(this.errContent.toString().contains("Invalid Format!"));
 		}
 	}
@@ -54,18 +55,40 @@ public class BowlingServiceTest {
 		Mockito.when(this.bufferedReader.readLine()).thenReturn("5", "6", "exit");
 		try {
 			this.bowlingService.startBowling();
-		} catch (Exception e) {
+        } catch (UserQuitException e) {
 			assertTrue(this.errContent.toString().contains("Please provide a value between (including) 0 and 5"));
 		}
 	}
 
 	@Test
-	public void testAllStrikes() throws IOException, UserQuitException {
-		Mockito.when(this.bufferedReader.readLine()).thenReturn("10", "10", "10", "10", "10", "10", "10", "10", "10", "10", "10", "10");
-		this.bowlingService.startBowling();
-		assertTrue(this.outContent.toString().contains("Final score: 300"));
-		assertEquals("", this.errContent.toString());
-	}
+    public void testBehaviourOfTwoConsecutiveStrikes() throws IOException {
+        Mockito.when(this.bufferedReader.readLine()).thenReturn("10", "10", "1", "1", "exit");
+        try {
+            this.bowlingService.startBowling();
+        } catch (final UserQuitException e) {
+            // do nothing
+        }
+        assertTrue(this.outContent.toString().contains("|   21  |   33  |   35  |"));
+    }
+
+    @Test
+    public void testSpareBehaviour() throws IOException {
+        Mockito.when(this.bufferedReader.readLine()).thenReturn("5", "5", "1", "1", "exit");
+        try {
+            this.bowlingService.startBowling();
+        } catch (final UserQuitException e) {
+            // do nothing
+        }
+        assertTrue(this.outContent.toString().contains("|   11  |   13  |"));
+    }
+
+    @Test
+    public void testAllStrikes() throws IOException, UserQuitException {
+        Mockito.when(this.bufferedReader.readLine()).thenReturn("10", "10", "10", "10", "10", "10", "10", "10", "10", "10", "10", "10");
+        this.bowlingService.startBowling();
+        assertTrue(this.outContent.toString().contains("Final score: 300"));
+        assertEquals("", this.errContent.toString());
+    }
 	
 	@Test
 	public void testDescriptionExample() throws IOException, UserQuitException {
